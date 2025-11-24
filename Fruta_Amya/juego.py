@@ -68,7 +68,8 @@ class Juego:
             self.pantalla.fill((200, 255, 200))
 
             self.fruta.dibujar(self.pantalla)
-            self.obstaculo.dibujar(self.pantalla)
+            for obstaculo in self.obstaculos:
+                obstaculo.dibujar(self.pantalla)
             self.jugador.dibujar(self.pantalla)
 
             texto = fuente.render(f"Puntaje: {self.puntaje}", True, (0, 0, 0))
@@ -78,5 +79,6 @@ class Juego:
             self.reloj.tick(30)
 
         pygame.quit()
+
 
 
