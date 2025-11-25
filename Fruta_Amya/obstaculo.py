@@ -1,6 +1,4 @@
-import pygame
-import random
-import math
+import pygame, random, math
 
 class Obstaculo:
     def __init__(self):
@@ -9,11 +7,12 @@ class Obstaculo:
         self.velocidad = 2
 
         try:
-            img = pygame.image.load("assets/obstaculos/obstaculo.png")
-            self.imagen = pygame.transform.scale(img, (70, 70))
+            imagen_original = pygame.image.load("assets/obstaculos/obstaculo.png")
+            self.imagen = pygame.transform.scale(imagen_original, (70, 70))
         except:
+            # Si no hay imagen
             self.imagen = pygame.Surface((70, 70))
-            self.imagen.fill((200, 120, 50))
+            self.imagen.fill((255, 165, 0))
 
     def seguir_jugador(self, jugador_x, jugador_y):
         dx = jugador_x - self.x
