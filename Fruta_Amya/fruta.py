@@ -7,11 +7,12 @@ class Fruta:
         self.y = random.randint(50, 550)
 
         try:
-            img = pygame.image.load("assets/frutas/fruta.png")
-            self.imagen = pygame.transform.scale(img, (40, 40))
+            imagen_original = pygame.image.load("assets/fruta/fruta.png")
+            self.imagen = pygame.transform.scale(imagen_original, (40, 40))
         except:
-            self.imagen = pygame.Surface((40, 40))
-            self.imagen.fill((255, 0, 0))
+            # Si no hay imagen: circulo rojo
+            self.imagen = pygame.Surface((40, 40), pygame.SRCALPHA)
+            pygame.draw.circle(self.imagen, (255, 0, 0), (20, 20), 20)
 
     def dibujar(self, pantalla):
         pantalla.blit(self.imagen, (self.x, self.y))
