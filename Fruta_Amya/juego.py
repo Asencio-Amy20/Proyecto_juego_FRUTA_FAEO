@@ -26,9 +26,7 @@ class Juego:
         self.puntaje = 0
         self.ejecutando = True
 
-    # --------------------------------------------------------
-    # COLISIONES
-    # --------------------------------------------------------
+
     def checar_colisiones(self):
         jugador_rect = pygame.Rect(self.jugador.x, self.jugador.y, 60, 60)
         fruta_rect = pygame.Rect(self.fruta.x, self.fruta.y, 40, 40)
@@ -62,9 +60,6 @@ class Juego:
                     self.ejecutando = False
                 break
 
-    # --------------------------------------------------------
-    # POWERUPS
-    # --------------------------------------------------------
     def spawn_powerup(self):
         self.tiempo_spawn_powerup += 1
 
@@ -131,9 +126,7 @@ class Juego:
 
                 self.powerup_activo = None
 
-    # --------------------------------------------------------
-    # RECORDS
-    # --------------------------------------------------------
+ 
     def guardar_record(self):
         try:
             try:
@@ -158,9 +151,7 @@ class Juego:
         except:
             return False
 
-    # --------------------------------------------------------
-    # GAME OVER
-    # --------------------------------------------------------
+
     def pantalla_game_over(self):
         fuente_grande = pygame.font.Font(None, 80)
         fuente_mediana = pygame.font.Font(None, 50)
@@ -189,9 +180,7 @@ class Juego:
 
         return "menu"
 
-    # --------------------------------------------------------
-    # LOOP DEL JUEGO
-    # --------------------------------------------------------
+  
     def iniciar(self):
         fuente = pygame.font.Font(None, 36)
         self.ejecutando = True
@@ -230,3 +219,4 @@ class Juego:
 
         self.guardar_record()
         return self.pantalla_game_over()
+
