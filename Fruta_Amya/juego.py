@@ -156,6 +156,8 @@ for obstaculo in self.obstaculos:
             teclas = pygame.key.get_pressed()
             self.jugador.mover(teclas, self.velocidad_jugador)
             self.checar_colisiones()
+            self.spawn_powerup()
+            self.actualizar_powerups()
             for obstaculo in self.obstaculos:
                 obstaculo.seguir_jugador(self.jugador.x, self.jugador.y)
 
@@ -182,6 +184,7 @@ for obstaculo in self.obstaculos:
             self.reloj.tick(30)
 
         pygame.quit()
+
 
 
 
