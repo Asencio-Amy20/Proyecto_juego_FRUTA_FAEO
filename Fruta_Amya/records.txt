@@ -1,0 +1,5 @@
+90 - Jugador1
+75 - Jugador2
+70 - Jugador3
+40 - Jugador4
+30 - Jugador5
