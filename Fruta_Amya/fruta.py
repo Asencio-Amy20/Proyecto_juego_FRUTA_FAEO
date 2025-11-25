@@ -10,7 +10,7 @@ class Fruta:
             imagen_original = pygame.image.load("assets/fruta/fruta.png")
             self.imagen = pygame.transform.scale(imagen_original, (40, 40))
         except:
-            # Si no hay imagen: circulo rojo
+            
             self.imagen = pygame.Surface((40, 40), pygame.SRCALPHA)
             pygame.draw.circle(self.imagen, (255, 0, 0), (20, 20), 20)
 
