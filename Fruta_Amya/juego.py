@@ -5,146 +5,217 @@ from obstaculo import Obstaculo
 from powerup import PowerUp
 import random
 
+
 class Juego:
     def __init__(self):
         pygame.init()
         self.pantalla = pygame.display.set_mode((800, 600))
         pygame.display.set_caption("FrutaManía 🍎")
         self.reloj = pygame.time.Clock()
+
         self.jugador = Jugador(400, 300)
         self.fruta = Fruta()
-        self.obstaculos = [Obstaculo()]  
-        self.velocidad_jugador = 5  
+
+        self.obstaculos = [Obstaculo()]
+        self.velocidad_jugador = 5
+
         self.powerups = []
         self.tiempo_spawn_powerup = 0
         self.powerup_activo = None
         self.tiempo_powerup = 0
+
         self.velocidad_obstaculos_original = 2
         self.tiene_escudo = False
+
         self.puntaje = 0
         self.ejecutando = True
 
+   
     def checar_colisiones(self):
-    jugador_rect = pygame.Rect(self.jugador.x, self.jugador.y, 60, 60)
-    fruta_rect = pygame.Rect(self.fruta.x, self.fruta.y, 40, 40)
-    
-    if jugador_rect.colliderect(fruta_rect):
-        self.puntaje += 1
-        self.fruta = Fruta()  
-        
-        # Cada 5 frutas: acelerar todos los obstáculos
-        if self.puntaje % 5 == 0:
-            for obstaculo in self.obstaculos:
-                obstaculo.velocidad += 0.5
-            print(f"¡Nivel subió! Velocidad obstáculos: {self.obstaculos[0].velocidad}")
-        
-        # Cada 10 frutas: agregar un nuevo obstáculo
-        if self.puntaje % 10 == 0 and self.puntaje > 0:
-            nuevo_obstaculo = Obstaculo()
-            self.obstaculos.append(nuevo_obstaculo)
-            print(f"¡Nuevo obstáculo! Total: {len(self.obstaculos)}")
-        
-        
-        if self.puntaje % 20 == 0 and self.puntaje > 0:
-            self.velocidad_jugador = max(2, self.velocidad_jugador - 0.5)
-            print(f"¡Cansancio! Velocidad jugador: {self.velocidad_jugador}")
-    
-       
-for obstaculo in self.obstaculos:
-    obstaculo_rect = pygame.Rect(obstaculo.x, obstaculo.y, 70, 70)
-    if jugador_rect.colliderect(obstaculo_rect):
-        if self.tiene_escudo:
+        jugador_rect = pygame.Rect(self.jugador.x, self.jugador.y, 60, 60)
+        fruta_rect = pygame.Rect(self.fruta.x, self.fruta.y, 40, 40)
+
+        if jugador_rect.colliderect(fruta_rect):
+            self.puntaje += 1
+            self.fruta = Fruta()
+
             
-            self.tiene_escudo = False
-            self.powerup_activo = None
-            self.tiempo_powerup = 0
-            print("🛡️ ¡Escudo bloqueó el ataque!")
-            obstaculo.x = random.randint(100, 700)
-            obstaculo.y = random.randint(100, 500)
-        else:
-            self.ejecutando = False
-        break
+            if self.puntaje % 5 == 0:
+                for obst in self.obstaculos:
+                    obst.velocidad += 0.5
+
+            
+            if self.puntaje % 10 == 0:
+                self.obstaculos.append(Obstaculo())
+
+            
+            if self.puntaje % 20 == 0:
+                self.velocidad_jugador = max(2, self.velocidad_jugador - 0.5)
+
+        for obst in self.obstaculos:
+            obst_rect = pygame.Rect(obst.x, obst.y, 70, 70)
+            if jugador_rect.colliderect(obst_rect):
+                if self.tiene_escudo:
+                    self.tiene_escudo = False
+                    self.powerup_activo = None
+                    self.tiempo_powerup = 0
+                    obst.x = random.randint(100, 700)
+                    obst.y = random.randint(100, 500)
+                else:
+                    self.ejecutando = False
+                break
+
 
     def spawn_powerup(self):
-    """Genera power-ups aleatoriamente"""
-    self.tiempo_spawn_powerup += 1
-    
-    
-    if self.tiempo_spawn_powerup >= 300:
-        if random.randint(1, 100) <= 40:
-            self.powerups.append(PowerUp())
-            print(f"¡Power-up apareció! Tipo: {self.powerups[-1].tipo}")
-        self.tiempo_spawn_powerup = 0
+        self.tiempo_spawn_powerup += 1
 
+        if self.tiempo_spawn_powerup >= 300:
+            if random.randint(1, 100) <= 40:
+                self.powerups.append(PowerUp())
+            self.tiempo_spawn_powerup = 0
+
+  
     def activar_powerup(self, tipo):
-    """Activa el efecto del power-up recolectado"""
-    self.powerup_activo = tipo
-    
-    if tipo == "velocidad":
-        self.velocidad_jugador = 10  
-        self.tiempo_powerup = 150  
-        print("⚡ ¡VELOCIDAD ACTIVADA!")
-    
-    elif tipo == "escudo":
-        self.tiene_escudo = True
-        self.tiempo_powerup = 90  
-        print("🛡️ ¡ESCUDO ACTIVADO!")
-    
-    elif tipo == "tiempo_lento":
-        for obstaculo in self.obstaculos:
-            self.velocidad_obstaculos_original = obstaculo.velocidad
-            obstaculo.velocidad = obstaculo.velocidad * 0.3 
-        self.tiempo_powerup = 150 
-        print("⏰ ¡TIEMPO LENTO ACTIVADO!")
-    
-    elif tipo == "fruta_dorada":
-        self.puntaje += 5  
-        print("¡+5 PUNTOS!")
-        self.powerup_activo = None 
-    
-    elif tipo == "bomba":
-        
-        if len(self.obstaculos) > 1:
-            self.obstaculos = [self.obstaculos[0]]
-        
-        self.obstaculos[0] = Obstaculo()
-        print("¡BOMBA! Obstáculos destruidos")
-        self.powerup_activo = None  
+        self.powerup_activo = tipo
 
-    def actualizar_powerups(self):
-    """Actualiza el estado de los power-ups activos"""
-   
-    self.powerups = [p for p in self.powerups if p.esta_vivo()]
-    
-    # Verificar colisiones con power-ups
-    jugador_rect = pygame.Rect(self.jugador.x, self.jugador.y, 60, 60)
-    for powerup in self.powerups[:]:
-        powerup_rect = pygame.Rect(powerup.x - powerup.tamano, powerup.y - powerup.tamano, 
-                                   powerup.tamano * 2, powerup.tamano * 2)
-        if jugador_rect.colliderect(powerup_rect):
-            self.activar_powerup(powerup.tipo)
-            self.powerups.remove(powerup)
-    
-   
-    if self.powerup_activo and self.tiempo_powerup > 0:
-        self.tiempo_powerup -= 1
-        
-        if self.tiempo_powerup <= 0:
-            if self.powerup_activo == "velocidad":
-                self.velocidad_jugador = 5
-                print("⚡ Velocidad terminó")
-            
-            elif self.powerup_activo == "escudo":
-                self.tiene_escudo = False
-                print("🛡️ Escudo terminó")
-            
-            elif self.powerup_activo == "tiempo_lento":
-                for obstaculo in self.obstaculos:
-                    obstaculo.velocidad = obstaculo.velocidad / 0.3  
-                print("⏰ Tiempo lento terminó")
-            
+        if tipo == "velocidad":
+            self.velocidad_jugador = 10
+            self.tiempo_powerup = 150
+
+        elif tipo == "escudo":
+            self.tiene_escudo = True
+            self.tiempo_powerup = 90
+
+        elif tipo == "tiempo_lento":
+            for ob in self.obstaculos:
+                self.velocidad_obstaculos_original = ob.velocidad
+                ob.velocidad *= 0.3
+            self.tiempo_powerup = 150
+
+        elif tipo == "fruta_dorada":
+            self.puntaje += 5
             self.powerup_activo = None
 
+        elif tipo == "bomba":
+            if len(self.obstaculos) > 1:
+                self.obstaculos = [self.obstaculos[0]]
+            self.obstaculos[0] = Obstaculo()
+            self.powerup_activo = None
+
+   
+    def actualizar_powerups(self):
+        self.powerups = [p for p in self.powerups if p.esta_vivo()]
+
+        jugador_rect = pygame.Rect(self.jugador.x, self.jugador.y, 60, 60)
+
+        for power in self.powerups[:]:
+            rect_p = pygame.Rect(power.x - power.tamano, power.y - power.tamano,
+                                 power.tamano * 2, power.tamano * 2)
+
+            if jugador_rect.colliderect(rect_p):
+                self.activar_powerup(power.tipo)
+                self.powerups.remove(power)
+
+        if self.powerup_activo and self.tiempo_powerup > 0:
+            self.tiempo_powerup -= 1
+
+            if self.tiempo_powerup <= 0:
+
+                if self.powerup_activo == "velocidad":
+                    self.velocidad_jugador = 5
+
+                elif self.powerup_activo == "escudo":
+                    self.tiene_escudo = False
+
+                elif self.powerup_activo == "tiempo_lento":
+                    for ob in self.obstaculos:
+                        ob.velocidad = ob.velocidad / 0.3
+
+                self.powerup_activo = None
+
+  
+    def guardar_record(self):
+        try:
+            try:
+                with open("records.txt", "r") as archivo:
+                    records = []
+                    for linea in archivo:
+                        if linea.strip():
+                            punt = int(linea.split(" - ")[0])
+                            records.append(punt)
+            except:
+                records = []
+
+            records.append(self.puntaje)
+            records.sort(reverse=True)
+            records = records[:5]
+
+            with open("records.txt", "w") as archivo:
+                for i, punt in enumerate(records):
+                    archivo.write(f"{punt} - Jugador{i+1}\n")
+            return True
+
+        except:
+            return False
+
+ 
+    def pantalla_game_over(self):
+        fuente_grande = pygame.font.Font(None, 80)
+        fuente_mediana = pygame.font.Font(None, 50)
+        fuente_pequeña = pygame.font.Font(None, 36)
+
+        self.pantalla.fill((0, 0, 0))
+
+        texto = fuente_grande.render("GAME OVER", True, (255, 0, 0))
+        rect = texto.get_rect(center=(400, 150))
+        self.pantalla.blit(texto, rect)
+
+     
+        texto_puntaje = fuente_mediana.render(f"Puntaje Final: {self.puntaje}", True, (255, 255, 100))
+        rect_puntaje = texto_puntaje.get_rect(center=(400, 250))
+        self.pantalla.blit(texto_puntaje, rect_puntaje)
+
+      
+        try:
+            with open("records.txt", "r") as archivo:
+                records = []
+                for linea in archivo:
+                    if linea.strip():
+                        records.append(int(linea.split(" - ")[0]))
+
+            if records and self.puntaje >= records[0]:
+                texto_record = fuente_pequeña.render("¡NUEVO RÉCORD!", True, (255, 215, 0))
+            elif records and self.puntaje in records[:5]:
+                texto_record = fuente_pequeña.render("¡TOP 5!", True, (255, 215, 0))
+            else:
+                texto_record = None
+
+            if texto_record:
+                rect_record = texto_record.get_rect(center=(400, 310))
+                self.pantalla.blit(texto_record, rect_record)
+
+        except:
+            pass
+
+        texto2 = fuente_pequeña.render("Presiona ESPACIO para reiniciar", True, (200, 200, 200))
+        rect2 = texto2.get_rect(center=(400, 400))
+        self.pantalla.blit(texto2, rect2)
+
+        pygame.display.update()
+
+        esperando = True
+        while esperando:
+            for e in pygame.event.get():
+                if e.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+                if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
+                    esperando = False
+
+        return True
+
+   
     def iniciar(self):
         fuente = pygame.font.Font(None, 36)
 
@@ -155,95 +226,38 @@ for obstaculo in self.obstaculos:
 
             teclas = pygame.key.get_pressed()
             self.jugador.mover(teclas, self.velocidad_jugador)
+
             self.checar_colisiones()
             self.spawn_powerup()
             self.actualizar_powerups()
-            for obstaculo in self.obstaculos:
-                obstaculo.seguir_jugador(self.jugador.x, self.jugador.y)
 
+            for obst in self.obstaculos:
+                obst.seguir_jugador(self.jugador.x, self.jugador.y)
 
-
-            # Fondo verde claro
+            
             self.pantalla.fill((200, 255, 200))
 
             self.fruta.dibujar(self.pantalla)
-            for powerup in self.powerups:
-                powerup.dibujar(self.pantalla)
-            for obstaculo in self.obstaculos:
-                obstaculo.dibujar(self.pantalla)
+
+            for p in self.powerups:
+                p.dibujar(self.pantalla)
+
+            for obst in self.obstaculos:
+                obst.dibujar(self.pantalla)
+
             self.jugador.dibujar(self.pantalla)
 
             texto = fuente.render(f"Puntaje: {self.puntaje}", True, (0, 0, 0))
             self.pantalla.blit(texto, (10, 10))
-            
-            texto_obstaculos = fuente.render(f"Obstaculos: {len(self.obstaculos)}", True, (255, 0, 0))
-            self.pantalla.blit(texto_obstaculos, (10, 50))
-            
-            texto_velocidad = fuente.render(f"Velocidad: {self.velocidad_jugador:.1f}", True, (0, 0, 255))
-            self.pantalla.blit(texto_velocidad, (650, 10))
-
-            if self.powerup_activo and self.tiempo_powerup > 0:
-               tiempo_restante = self.tiempo_powerup // 30  # Convertir a segundos
-               if self.powerup_activo == "velocidad":
-                  texto_powerup = fuente.render(f"⚡ VELOCIDAD: {tiempo_restante}s", True, (255, 255, 0))
-               elif self.powerup_activo == "escudo":
-                    texto_powerup = fuente.render(f"🛡️ ESCUDO: {tiempo_restante}s", True, (0, 191, 255))
-               elif self.powerup_activo == "tiempo_lento":
-                    texto_powerup = fuente.render(f" LENTO: {tiempo_restante}s", True, (147, 112, 219))
-               else:
-                   texto_powerup = fuente.render(f"Power-up: {tiempo_restante}s", True, (255, 255, 255))
-    
-               self.pantalla.blit(texto_powerup, (250, 10))
-
-
-           if self.tiene_escudo:
-              pygame.draw.circle(self.pantalla, (0, 191, 255), 
-                      (int(self.jugador.x + 30), int(self.jugador.y + 30)), 45, 3)
-
 
             pygame.display.update()
             self.reloj.tick(30)
 
-            if self.guardar_record()
-               if self.pantalla_game_over():
-
-                   def guardar_record(self):
-                       """Guarda el puntaje en el archivo de récords si es top 5"""
-                       try:
-                          try:
-                              with open("records.txt", "r") as archivo:
-                                  records = []
-                                  for linea in archivo:
-                                      if linea.strip():
-                                         puntaje = int(linea.split(" - ")[0])
-                                         records.append(puntaje)
-                              except:
-                                    records = []
-                                 records.append(self.puntaje)
-                                 records.sort(reverse=True)
-                                 records = records[:5]  # Solo top 5
-        
        
-                              with open("records.txt", "w") as archivo:
-                                   for i, puntaje in enumerate(records):
-                                       archivo.write(f"{puntaje} - Jugador{i+1}\n")
-        
-                             print(f"Puntaje guardado: {self.puntaje}")
-                         except Exception as e:
-                             print(f"Error al guardar récord: {e}")
-
-
-    
-                  self.__init__()
-                  self.iniciar()
-            else:
-                pygame.quit()
-
-
-
-
-
-
+        self.guardar_record()
+        self.pantalla_game_over()
+        self.__init__()
+        self.iniciar()
 
 
 
